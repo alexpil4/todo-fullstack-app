@@ -4,7 +4,7 @@ import { PageContainer } from '@toolpad/core/PageContainer';
 
 export default function Layout() {
   return (
-    <DashboardLayout>
+    <DashboardLayout defaultSidebarCollapsed={true}>
       <PageContainer>
         <Outlet />
       </PageContainer>
