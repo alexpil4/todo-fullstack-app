@@ -43,9 +43,14 @@ export default function TasksTable(props: Props) {
               <TableCell>{task.description}</TableCell>
               <TableCell>
                 {task.completed ? (
-                  <Chip icon={<ThumbUpAltIcon />} label="COMPLETE" color="success" />
+                  <Chip size="small" icon={<ThumbUpAltIcon />} label="COMPLETE" color="success" />
                 ) : (
-                  <Chip icon={<HourglassBottomIcon />} label="ON HOLD" color="warning" />
+                  <Chip
+                    size="small"
+                    icon={<HourglassBottomIcon />}
+                    label="ON HOLD"
+                    color="warning"
+                  />
                 )}
               </TableCell>
             </TableRow>

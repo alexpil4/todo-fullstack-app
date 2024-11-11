@@ -64,9 +64,11 @@ export default function TaskListPage() {
   console.log(taskList);
 
   return (
-    <div>
-      {showTaskCreation ? <TaskToAdd submit={handleSubmit} cancel={handleCancel} /> : null}
-      {!showTaskCreation && taskList.length > 0 && <TasksTable tasks={taskList} />}
+    <>
+      {showTaskCreation ? (
+        <TaskToAdd submit={handleSubmit} isOpen={showTaskCreation} handleClose={handleCancel} />
+      ) : null}
+      {taskList.length > 0 && <TasksTable tasks={taskList} />}
       <br />
       {!showTaskCreation && (
         <Fab
@@ -83,6 +85,6 @@ export default function TaskListPage() {
           <AlarmAddIcon />
         </Fab>
       )}
-    </div>
+    </>
   );
 }
