@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 
+import { Fab } from '@mui/material';
+
+import AlarmAddIcon from '@mui/icons-material/AlarmAdd';
+
 import { TaskItem, TaskItemToAdd } from './../../types/components';
-import Task from '../../components/Task';
+import TasksTable from '../../components/TasksTable';
 import TaskToAdd from '../../components/TaskToAdd';
 
 export default function TaskListPage() {
@@ -62,11 +66,23 @@ export default function TaskListPage() {
   return (
     <div>
       {showTaskCreation ? <TaskToAdd submit={handleSubmit} cancel={handleCancel} /> : null}
-      {!showTaskCreation &&
-        taskList.length > 0 &&
-        taskList.map((task) => <Task key={task._id} data={task} />)}
+      {!showTaskCreation && taskList.length > 0 && <TasksTable tasks={taskList} />}
       <br />
-      {!showTaskCreation ? <button onClick={() => addNewTask()}>+ add task</button> : null}
+      {!showTaskCreation && (
+        <Fab
+          color="primary"
+          aria-label="add"
+          onClick={() => addNewTask()}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            zIndex: 1000,
+          }}
+        >
+          <AlarmAddIcon />
+        </Fab>
+      )}
     </div>
   );
 }
