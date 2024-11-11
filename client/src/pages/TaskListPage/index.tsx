@@ -61,7 +61,6 @@ export default function TaskListPage() {
 
   return (
     <div>
-      <p>Task list</p>
       {showTaskCreation ? <TaskToAdd submit={handleSubmit} cancel={handleCancel} /> : null}
       {!showTaskCreation &&
         taskList.length > 0 &&
