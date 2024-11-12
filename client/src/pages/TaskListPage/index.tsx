@@ -9,6 +9,7 @@ import TasksTable from '../../components/TasksTable';
 import TaskCreation from '../../components/TaskCreation';
 
 export default function TaskListPage() {
+  // Internal state
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
   const [showTaskCreation, setShowTaskCreation] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);

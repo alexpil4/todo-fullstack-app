@@ -11,10 +11,10 @@ import {
   Tooltip,
   FormControlLabel,
   Fab,
+  Grid2,
 } from '@mui/material';
 
-import AddTaskIcon from '@mui/icons-material/AddTask';
-
+import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 
 import { TaskItemToAdd } from '../../types/components';
@@ -25,6 +25,11 @@ const formInitialState = {
   completed: false,
 };
 
+const formInitialErrorState = {
+  title: false,
+  description: false,
+};
+
 export default function TaskCreation(props: {
   submit: (formData: TaskItemToAdd) => void;
   handleClose: () => void;
@@ -32,11 +37,19 @@ export default function TaskCreation(props: {
 }) {
   const { submit, handleClose, isOpen } = props;
 
-  // Local state
+  // Internal state
   const [formData, setFormData] = useState(formInitialState);
+  const [formError, setFormError] = useState(formInitialErrorState);
+
+  // Validation checker (*Required)
+  const handleValidation = (name: string, value: string) => {
+    setFormError((prevFormData) => ({ ...prevFormData, [name]: value.length === 0 }));
+  };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target;
+    // Handle the validation
+    handleValidation(name, value);
     // Form state update
     setFormData((prevFormData) => ({
       ...prevFormData,
@@ -44,6 +57,7 @@ export default function TaskCreation(props: {
     }));
   };
 
+  // Submit
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     submit(formData);
@@ -62,6 +76,7 @@ export default function TaskCreation(props: {
       handleClose();
       // Reset form
       setFormData(formInitialState);
+      setFormError(formInitialErrorState);
     };
 
   // Close component and reset form
@@ -72,71 +87,81 @@ export default function TaskCreation(props: {
 
   return (
     <Drawer variant="temporary" anchor="right" open={isOpen} onClose={toggleDrawer('right', false)}>
-      <>
-        <Toolbar />
-        <Divider />
-        <Box sx={{ padding: 2 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">CREATE A TASK</Typography>
-            <IconButton size="large" onClick={() => close()}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
+      <Toolbar />
+      <Divider />
+      <Box sx={{ width: 500, padding: 2 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h6">CREATE A TASK</Typography>
+          <IconButton size="large" onClick={() => close()}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
 
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{ '& > :not(style)': { m: 1 } }}
-            noValidate
-            autoComplete="off"
-            mt={4}
-          >
+        <Grid2
+          container
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ '& > :not(style)': { m: 1 } }}
+          mt={4}
+        >
+          <Grid2 size={12}>
             <TextField
+              required
+              fullWidth
               id="outlined-basic"
               label="Title"
               name="title"
+              error={formError.title}
+              helperText={formError.title && 'Required field'}
               variant="outlined"
               value={formData.title}
               onChange={handleChange}
             />
-
+          </Grid2>
+          <Grid2 size={12}>
             <TextField
+              required
+              fullWidth
+              multiline
+              rows={2}
               id="outlined-basic"
               label="Description"
               name="description"
+              error={formError.description}
+              helperText={formError.description && 'Required field'}
               variant="outlined"
               value={formData.description}
               onChange={handleChange}
             />
+          </Grid2>
 
-            <FormControlLabel
-              control={
-                <Checkbox name="completed" checked={formData.completed} onChange={handleChange} />
-              }
-              label="Already completed"
-            />
-          </Box>
-        </Box>
-        <Box>
-          {isOpen && (
-            <Tooltip title="Set the new task">
-              <Fab
-                color="primary"
-                aria-label="add"
-                onClick={handleSubmit}
-                style={{
-                  position: 'fixed',
-                  bottom: '40px',
-                  right: '40px',
-                  zIndex: 1000,
-                }}
-              >
-                <AddTaskIcon />
-              </Fab>
-            </Tooltip>
-          )}
-        </Box>
-      </>
+          <FormControlLabel
+            control={
+              <Checkbox name="completed" checked={formData.completed} onChange={handleChange} />
+            }
+            label="Already completed"
+          />
+        </Grid2>
+      </Box>
+      <Box>
+        {isOpen && (
+          <Tooltip title="Save the new task">
+            <Fab
+              color="success"
+              aria-label="add"
+              onClick={handleSubmit}
+              style={{
+                position: 'fixed',
+                bottom: '40px',
+                right: '40px',
+                zIndex: 1000,
+              }}
+            >
+              <SaveIcon />
+            </Fab>
+          </Tooltip>
+        )}
+      </Box>
     </Drawer>
   );
 }
