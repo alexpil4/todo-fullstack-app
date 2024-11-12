@@ -1,4 +1,4 @@
-# TODO APP (REACTJS + EXPRESS.JS + MONGODB)
+# TODO APP (REACTJS + EXPRESS.JS + MONGODB) (WIP)
 
 Add the `.env` file into `server` and `client` folders, see the example.
 
