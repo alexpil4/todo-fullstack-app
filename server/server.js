@@ -45,7 +45,9 @@ app.get('/tasks', async (req, res) => {
     res.status(200).json(tasks); // Send back all tasks
   } catch (err) {
     console.error('Error fetching tasks:', err);
-    res.status(500).json({ message: 'Error fetching tasks', error: err.message });
+    res
+      .status(500)
+      .json({ message: 'Error fetching tasks', error: err.message });
   }
 });
 
@@ -63,7 +65,9 @@ app.post('/add-task', async (req, res) => {
     });
 
     // Fetch the inserted task by its ID (using the insertedId)
-    const insertedTask = await db.collection('tasks').findOne({ _id: result.insertedId });
+    const insertedTask = await db
+      .collection('tasks')
+      .findOne({ _id: result.insertedId });
 
     // Return the full inserted task document
     res.status(201).json(insertedTask);
@@ -89,7 +93,9 @@ app.put('/edit-task', async (req, res) => {
 
   try {
     // Update the filtered task into the collection
-    const result = await db.collection('tasks').updateOne(filter, updateDocument);
+    const result = await db
+      .collection('tasks')
+      .updateOne(filter, updateDocument);
   } catch (err) {
     console.error('Error updating task:', err);
     res.status(500).json({ message: 'Error updating task', error: err });
@@ -101,7 +107,9 @@ app.delete('/delete-task', async (req, res) => {
   const { _id } = req.body;
 
   try {
-    const result = await db.collection('tasks').deleteOne({ _id: new ObjectId(`${_id}`) });
+    const result = await db
+      .collection('tasks')
+      .deleteOne({ _id: new ObjectId(`${_id}`) });
 
     if (result.deletedCount === 1) {
       res.status(200).json({ message: 'Task deleted successfully' });
@@ -111,7 +119,9 @@ app.delete('/delete-task', async (req, res) => {
     }
   } catch (err) {
     console.error('Error during task deletion:', err.message);
-    res.status(500).json({ message: 'Error deleting task', error: err.message });
+    res
+      .status(500)
+      .json({ message: 'Error deleting task', error: err.message });
   }
 });
 

@@ -30,20 +30,23 @@ const formInitialErrorState = {
   description: false,
 };
 
-export default function TaskCreation(props: {
+export default function TaskSection(props: {
   submit: (formData: TaskItemToAdd) => void;
   handleClose: () => void;
   isOpen: boolean;
 }) {
   const { submit, handleClose, isOpen } = props;
 
-  // Internal state
+  // Component states
   const [formData, setFormData] = useState(formInitialState);
   const [formError, setFormError] = useState(formInitialErrorState);
 
   // Validation checker (*Required)
   const handleValidation = (name: string, value: string) => {
-    setFormError((prevFormData) => ({ ...prevFormData, [name]: value.length === 0 }));
+    setFormError((prevFormData) => ({
+      ...prevFormData,
+      [name]: value.length === 0,
+    }));
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +67,8 @@ export default function TaskCreation(props: {
   };
 
   const toggleDrawer =
-    (anchor: string, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (anchor: string, open: boolean) =>
+    (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -86,7 +90,12 @@ export default function TaskCreation(props: {
   };
 
   return (
-    <Drawer variant="temporary" anchor="right" open={isOpen} onClose={toggleDrawer('right', false)}>
+    <Drawer
+      variant="temporary"
+      anchor="right"
+      open={isOpen}
+      onClose={toggleDrawer('right', false)}
+    >
       <Toolbar />
       <Divider />
       <Box sx={{ width: 500, padding: 2 }}>
@@ -137,7 +146,11 @@ export default function TaskCreation(props: {
 
           <FormControlLabel
             control={
-              <Checkbox name="completed" checked={formData.completed} onChange={handleChange} />
+              <Checkbox
+                name="completed"
+                checked={formData.completed}
+                onChange={handleChange}
+              />
             }
             label="Already completed"
           />

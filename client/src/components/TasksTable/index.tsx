@@ -13,12 +13,14 @@ import {
   IconButton,
 } from '@mui/material';
 
+import EditIcon from '@mui/icons-material/Edit';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Props {
   tasks: TaskItem[];
+  handleEditTask: (id: string) => void;
   handleDeleteTask: (id: string) => void;
 }
 
@@ -39,15 +41,25 @@ export default function TasksTable(props: Props) {
         </TableHead>
         <TableBody>
           {tasks.map((task: TaskItem) => (
-            <TableRow key={task._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell>{moment(task.timestamp).format('DD.MM.YYYY - HH:mm')}</TableCell>
+            <TableRow
+              key={task._id}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell>
+                {moment(task.timestamp).format('DD.MM.YYYY - HH:mm')}
+              </TableCell>
               <TableCell component="th" scope="task">
                 {task.title}
               </TableCell>
               <TableCell>{task.description}</TableCell>
               <TableCell>
                 {task.completed ? (
-                  <Chip size="small" icon={<ThumbUpAltIcon />} label="COMPLETE" color="success" />
+                  <Chip
+                    size="small"
+                    icon={<ThumbUpAltIcon />}
+                    label="COMPLETE"
+                    color="success"
+                  />
                 ) : (
                   <Chip
                     size="small"
@@ -57,8 +69,18 @@ export default function TasksTable(props: Props) {
                   />
                 )}
               </TableCell>
-              <TableCell>
-                <IconButton onClick={() => handleDeleteTask(task._id)} aria-label="delete">
+
+              <TableCell align="right">
+                <IconButton
+                  onClick={() => handleDeleteTask(task._id)}
+                  aria-label="edit"
+                >
+                  <EditIcon />
+                </IconButton>
+                <IconButton
+                  onClick={() => handleDeleteTask(task._id)}
+                  aria-label="delete"
+                >
                   <DeleteIcon />
                 </IconButton>
               </TableCell>
