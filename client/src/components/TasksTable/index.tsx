@@ -30,7 +30,7 @@ export default function TasksTable(props: Props) {
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>TIME</TableCell>
+            <TableCell>DATE - TIME</TableCell>
             <TableCell>TITLE</TableCell>
             <TableCell>DESCRIPTION</TableCell>
             <TableCell>STATUS</TableCell>
@@ -40,7 +40,7 @@ export default function TasksTable(props: Props) {
         <TableBody>
           {tasks.map((task: TaskItem) => (
             <TableRow key={task._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell>{moment(task.timestamp).format('DD.MM.YYYY HH:mm')}</TableCell>
+              <TableCell>{moment(task.timestamp).format('DD.MM.YYYY - HH:mm')}</TableCell>
               <TableCell component="th" scope="task">
                 {task.title}
               </TableCell>
