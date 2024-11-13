@@ -10,17 +10,20 @@ import {
   TableRow,
   Paper,
   Chip,
+  IconButton,
 } from '@mui/material';
 
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Props {
   tasks: TaskItem[];
+  handleDeleteTask: (id: string) => void;
 }
 
 export default function TasksTable(props: Props) {
-  const { tasks } = props;
+  const { tasks, handleDeleteTask } = props;
 
   return (
     <TableContainer component={Paper}>
@@ -31,11 +34,12 @@ export default function TasksTable(props: Props) {
             <TableCell>TITLE</TableCell>
             <TableCell>DESCRIPTION</TableCell>
             <TableCell>STATUS</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {tasks.map((task: TaskItem) => (
-            <TableRow key={task.title} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+            <TableRow key={task._id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell>{moment(task.timestamp).format('DD.MM.YYYY HH:mm')}</TableCell>
               <TableCell component="th" scope="task">
                 {task.title}
@@ -52,6 +56,11 @@ export default function TasksTable(props: Props) {
                     color="warning"
                   />
                 )}
+              </TableCell>
+              <TableCell>
+                <IconButton onClick={() => handleDeleteTask(task._id)} aria-label="delete">
+                  <DeleteIcon />
+                </IconButton>
               </TableCell>
             </TableRow>
           ))}

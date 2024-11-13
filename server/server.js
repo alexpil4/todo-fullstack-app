@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
@@ -7,7 +7,7 @@ require('dotenv').config();
 // Express config
 const app = express();
 // Use the port from .env or the fallback one
-const port = process.env.PORT || 5000; 
+const port = process.env.PORT || 5000;
 
 // Enable CORS
 app.use(cors());
@@ -34,6 +34,21 @@ const connectDB = async () => {
 // Run MongoDB connection
 connectDB();
 
+// GET tasks endpoint
+app.get('/tasks', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ message: 'Database not connected' });
+    }
+
+    const tasks = await db.collection('tasks').find().toArray();
+    res.status(200).json(tasks); // Send back all tasks
+  } catch (err) {
+    console.error('Error fetching tasks:', err);
+    res.status(500).json({ message: 'Error fetching tasks', error: err.message });
+  }
+});
+
 // POST task endpoint
 app.post('/add-task', async (req, res) => {
   const { title, description, completed } = req.body;
@@ -58,18 +73,45 @@ app.post('/add-task', async (req, res) => {
   }
 });
 
-// GET tasks endpoint
-app.get('/tasks', async (req, res) => {
-  try {
-    if (!db) {
-      return res.status(500).json({ message: 'Database not connected' });
-    }
+// PUT
+app.put('/edit-task', async (req, res) => {
+  const { _id, title, description, completed } = req.body;
 
-    const tasks = await db.collection('tasks').find().toArray();
-    res.status(200).json(tasks); // Send back all tasks
+  const filter = { _id };
+
+  const updateDocument = {
+    $set: {
+      title,
+      description,
+      completed,
+    },
+  };
+
+  try {
+    // Update the filtered task into the collection
+    const result = await db.collection('tasks').updateOne(filter, updateDocument);
   } catch (err) {
-    console.error('Error fetching tasks:', err);
-    res.status(500).json({ message: 'Error fetching tasks', error: err.message });
+    console.error('Error updating task:', err);
+    res.status(500).json({ message: 'Error updating task', error: err });
+  }
+});
+
+// DELETE
+app.delete('/delete-task', async (req, res) => {
+  const { _id } = req.body;
+
+  try {
+    const result = await db.collection('tasks').deleteOne({ _id: new ObjectId(`${_id}`) });
+
+    if (result.deletedCount === 1) {
+      res.status(200).json({ message: 'Task deleted successfully' });
+    } else {
+      console.warn('Task not found:', _id);
+      res.status(404).json({ message: 'Task not found' });
+    }
+  } catch (err) {
+    console.error('Error during task deletion:', err.message);
+    res.status(500).json({ message: 'Error deleting task', error: err.message });
   }
 });
 

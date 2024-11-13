@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { Fab, CircularProgress, Backdrop, Tooltip } from '@mui/material';
+import { Fab, CircularProgress, Backdrop, Tooltip, Box } from '@mui/material';
 
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 
@@ -14,8 +14,9 @@ export default function TaskListPage() {
   const [showTaskCreation, setShowTaskCreation] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // GET tasks
   const fetchTasks = async () => {
-    // GET tasks
+    setLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/tasks`);
       if (!response.ok) throw new Error('Error fetching tasks');
@@ -24,6 +25,27 @@ export default function TaskListPage() {
       setTaskList(tasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
+    }
+    setLoading(false);
+  };
+
+  // DELETE task
+  const deleteTask = async (id: string) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/delete-task`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ _id: id }),
+      });
+      if (response.ok) {
+        setTaskList((prevTasks) => prevTasks.filter((task) => task._id !== id));
+      } else {
+        console.error('Error deleting task');
+      }
+    } catch (error) {
+      console.error(`Error fetching the delete for selected task ${id}`, error);
     }
   };
 
@@ -65,18 +87,25 @@ export default function TaskListPage() {
     setShowTaskCreation(true);
   };
 
-  if (loading)
+  if (loading && !taskList)
     return (
       <Backdrop sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })} open>
         <CircularProgress color="inherit" />
       </Backdrop>
     );
 
+  if (!taskList)
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+        No resources found
+      </Box>
+    );
+
   return (
     <>
       <TaskCreation submit={handleSubmit} isOpen={showTaskCreation} handleClose={handleCancel} />
 
-      {taskList.length > 0 && <TasksTable tasks={taskList} />}
+      {taskList.length > 0 && <TasksTable tasks={taskList} handleDeleteTask={deleteTask} />}
 
       {!showTaskCreation && (
         <Tooltip title="Write a new task">
