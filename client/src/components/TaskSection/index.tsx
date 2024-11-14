@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Drawer,
   Toolbar,
@@ -17,7 +17,15 @@ import {
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 
-import { TaskItemToAdd } from '../../types/components';
+import { TaskItem, TaskItemToAdd, TaskItemToEdit } from '../../types/task';
+
+interface Props {
+  submit: (formData: TaskItemToAdd) => void;
+  editTask: (formData: TaskItemToEdit) => void;
+  handleClose: () => void;
+  isOpen: boolean;
+  task?: TaskItem;
+}
 
 const formInitialState = {
   title: '',
@@ -30,20 +38,25 @@ const formInitialErrorState = {
   description: false,
 };
 
-export default function TaskCreation(props: {
-  submit: (formData: TaskItemToAdd) => void;
-  handleClose: () => void;
-  isOpen: boolean;
-}) {
-  const { submit, handleClose, isOpen } = props;
+export default function TaskSection(props: Props) {
+  const { submit, editTask, handleClose, isOpen, task } = props;
 
-  // Internal state
+  // Component states
   const [formData, setFormData] = useState(formInitialState);
   const [formError, setFormError] = useState(formInitialErrorState);
 
+  useEffect(() => {
+    if (task) {
+      setFormData(task);
+    }
+  }, [task]);
+
   // Validation checker (*Required)
   const handleValidation = (name: string, value: string) => {
-    setFormError((prevFormData) => ({ ...prevFormData, [name]: value.length === 0 }));
+    setFormError((prevFormData) => ({
+      ...prevFormData,
+      [name]: value.length === 0,
+    }));
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,11 +73,15 @@ export default function TaskCreation(props: {
   // Submit
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    submit(formData);
+    // UPDATE
+    if (task) editTask({ ...formData, _id: task._id });
+    // CREATE
+    else submit(formData);
   };
 
   const toggleDrawer =
-    (anchor: string, open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (anchor: string, open: boolean) =>
+    (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -86,12 +103,17 @@ export default function TaskCreation(props: {
   };
 
   return (
-    <Drawer variant="temporary" anchor="right" open={isOpen} onClose={toggleDrawer('right', false)}>
+    <Drawer
+      variant="temporary"
+      anchor="right"
+      open={isOpen}
+      onClose={toggleDrawer('right', false)}
+    >
       <Toolbar />
       <Divider />
       <Box sx={{ width: 500, padding: 2 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h6">CREATE A TASK</Typography>
+          <Typography variant="h6">{`${!task ? 'CREATE' : 'UPDATE'} TASK`}</Typography>
           <IconButton size="large" onClick={() => close()}>
             <CloseIcon />
           </IconButton>
@@ -137,7 +159,11 @@ export default function TaskCreation(props: {
 
           <FormControlLabel
             control={
-              <Checkbox name="completed" checked={formData.completed} onChange={handleChange} />
+              <Checkbox
+                name="completed"
+                checked={formData.completed}
+                onChange={handleChange}
+              />
             }
             label="Already completed"
           />

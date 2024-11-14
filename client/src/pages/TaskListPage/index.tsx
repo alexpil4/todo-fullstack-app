@@ -4,14 +4,23 @@ import { Fab, CircularProgress, Backdrop, Tooltip, Box } from '@mui/material';
 
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 
-import { TaskItem, TaskItemToAdd } from './../../types/components';
+import { TaskItem, TaskItemToAdd, TaskItemToEdit } from '../../types/task';
 import TasksTable from '../../components/TasksTable';
-import TaskCreation from '../../components/TaskCreation';
+import TaskSection from '../../components/TaskSection';
+
+interface ShowTask {
+  show: boolean;
+  task?: TaskItem;
+}
+
+const showTaskInitialState = {
+  show: false,
+};
 
 export default function TaskListPage() {
   // Internal state
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
-  const [showTaskCreation, setShowTaskCreation] = useState<boolean>(false);
+  const [showTask, setShowTask] = useState<ShowTask>(showTaskInitialState);
   const [loading, setLoading] = useState<boolean>(false);
 
   // GET tasks
@@ -29,16 +38,61 @@ export default function TaskListPage() {
     setLoading(false);
   };
 
+  // EDIT task
+  const editTask = async (task: TaskItemToEdit) => {
+    const { _id, title, description, completed } = task;
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/edit-task`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            _id,
+            title,
+            description,
+            completed,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // If task is successfully updated, delete the old one and
+        //  add the new one to the state
+        setTaskList((prevList) =>
+          prevList.map((prevTask) =>
+            prevTask._id === data._id ? data : prevTask,
+          ),
+        );
+        setShowTask(showTaskInitialState);
+      } else {
+        console.error('Error updating task');
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching the update for selected task ${_id}`,
+        error,
+      );
+    }
+  };
+
   // DELETE task
   const deleteTask = async (id: string) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/delete-task`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/delete-task`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ _id: id }),
         },
-        body: JSON.stringify({ _id: id }),
-      });
+      );
       if (response.ok) {
         setTaskList((prevTasks) => prevTasks.filter((task) => task._id !== id));
       } else {
@@ -57,20 +111,23 @@ export default function TaskListPage() {
     setLoading(true);
     // POST task
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/add-task`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/add-task`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(task),
         },
-        body: JSON.stringify(task),
-      });
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         // If task is successfully added, add it to the state
         setTaskList((prevList) => [...prevList, data]);
-        setShowTaskCreation(false);
+        setShowTask(showTaskInitialState);
       } else {
         // If error occurs, show the error message
         console.error(data.message);
@@ -81,38 +138,61 @@ export default function TaskListPage() {
     setLoading(false);
   };
 
-  const handleCancel = () => setShowTaskCreation(false);
+  const handleCancel = () => setShowTask(showTaskInitialState);
 
-  const addNewTask = () => {
-    setShowTaskCreation(true);
+  const showTaskSection = (task?: TaskItem) => {
+    // UPDATE TASK
+    if (task) setShowTask({ task, show: true });
+    // CREATE TASK
+    else setShowTask({ show: true });
   };
 
   if (loading && !taskList)
     return (
-      <Backdrop sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })} open>
+      <Backdrop
+        sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+        open
+      >
         <CircularProgress color="inherit" />
       </Backdrop>
     );
 
   if (!taskList)
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="50vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="50vh"
+      >
         No resources found
       </Box>
     );
 
   return (
     <>
-      <TaskCreation submit={handleSubmit} isOpen={showTaskCreation} handleClose={handleCancel} />
+      <TaskSection
+        submit={handleSubmit}
+        editTask={editTask}
+        isOpen={showTask.show}
+        task={showTask.task}
+        handleClose={handleCancel}
+      />
 
-      {taskList.length > 0 && <TasksTable tasks={taskList} handleDeleteTask={deleteTask} />}
+      {taskList.length > 0 && (
+        <TasksTable
+          tasks={taskList}
+          handleDeleteTask={deleteTask}
+          handleEditTask={(task) => showTaskSection(task)}
+        />
+      )}
 
-      {!showTaskCreation && (
+      {!showTask.show && (
         <Tooltip title="Write a new task">
           <Fab
             color="primary"
             aria-label="add"
-            onClick={() => addNewTask()}
+            onClick={() => showTaskSection()}
             style={{
               position: 'fixed',
               bottom: '40px',
