@@ -4,14 +4,23 @@ import { Fab, CircularProgress, Backdrop, Tooltip, Box } from '@mui/material';
 
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 
-import { TaskItem, TaskItemToAdd } from './../../types/components';
+import { TaskItem, TaskItemToAdd, TaskItemToEdit } from '../../types/task';
 import TasksTable from '../../components/TasksTable';
 import TaskSection from '../../components/TaskSection';
+
+interface ShowTask {
+  show: boolean;
+  task?: TaskItem;
+}
+
+const showTaskInitialState = {
+  show: false,
+};
 
 export default function TaskListPage() {
   // Internal state
   const [taskList, setTaskList] = useState<TaskItem[]>([]);
-  const [showTask, setShowTask] = useState<{ [key: string]: any }>(false);
+  const [showTask, setShowTask] = useState<ShowTask>(showTaskInitialState);
   const [loading, setLoading] = useState<boolean>(false);
 
   // GET tasks
@@ -29,28 +38,47 @@ export default function TaskListPage() {
     setLoading(false);
   };
 
-  // // EDIT task
-  // const editTask = async (id: string) => {
-  //   try {
-  //     const response = await fetch(
-  //       `${process.env.REACT_APP_API_URL}/delete-task`,
-  //       {
-  //         method: 'PUT',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //         },
-  //         body: JSON.stringify({ _id: id }),
-  //       },
-  //     );
-  //     if (response.ok) {
-  //       setTaskList((prevTasks) => prevTasks.filter((task) => task._id !== id));
-  //     } else {
-  //       console.error('Error deleting task');
-  //     }
-  //   } catch (error) {
-  //     console.error(`Error fetching the delete for selected task ${id}`, error);
-  //   }
-  // };
+  // EDIT task
+  const editTask = async (task: TaskItemToEdit) => {
+    const { _id, title, description, completed } = task;
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/edit-task`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            _id,
+            title,
+            description,
+            completed,
+          }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // If task is successfully updated, delete the old one and
+        //  add the new one to the state
+        setTaskList((prevList) =>
+          prevList.map((prevTask) =>
+            prevTask._id === data._id ? data : prevTask,
+          ),
+        );
+        setShowTask(showTaskInitialState);
+      } else {
+        console.error('Error updating task');
+      }
+    } catch (error) {
+      console.error(
+        `Error fetching the update for selected task ${_id}`,
+        error,
+      );
+    }
+  };
 
   // DELETE task
   const deleteTask = async (id: string) => {
@@ -99,7 +127,7 @@ export default function TaskListPage() {
       if (response.ok) {
         // If task is successfully added, add it to the state
         setTaskList((prevList) => [...prevList, data]);
-        setShowTask(false);
+        setShowTask(showTaskInitialState);
       } else {
         // If error occurs, show the error message
         console.error(data.message);
@@ -110,10 +138,13 @@ export default function TaskListPage() {
     setLoading(false);
   };
 
-  const handleCancel = () => setShowTask(false);
+  const handleCancel = () => setShowTask(showTaskInitialState);
 
-  const showTaskSection = () => {
-    setShowTask(true);
+  const showTaskSection = (task?: TaskItem) => {
+    // UPDATE TASK
+    if (task) setShowTask({ task, show: true });
+    // CREATE TASK
+    else setShowTask({ show: true });
   };
 
   if (loading && !taskList)
@@ -142,8 +173,9 @@ export default function TaskListPage() {
     <>
       <TaskSection
         submit={handleSubmit}
-        isOpen={showTask}
-        task={}
+        editTask={editTask}
+        isOpen={showTask.show}
+        task={showTask.task}
         handleClose={handleCancel}
       />
 
@@ -151,11 +183,11 @@ export default function TaskListPage() {
         <TasksTable
           tasks={taskList}
           handleDeleteTask={deleteTask}
-          handleEditTask={(id) => showTaskSection(id)}
+          handleEditTask={(task) => showTaskSection(task)}
         />
       )}
 
-      {!showTask && (
+      {!showTask.show && (
         <Tooltip title="Write a new task">
           <Fab
             color="primary"

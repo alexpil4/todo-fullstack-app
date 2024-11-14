@@ -1,4 +1,4 @@
-import { TaskItem } from '../../types/components';
+import { TaskItem } from '../../types/task';
 import moment from 'moment';
 
 import {
@@ -20,12 +20,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 interface Props {
   tasks: TaskItem[];
-  handleEditTask: (id: string) => void;
+  handleEditTask: (task: TaskItem) => void;
   handleDeleteTask: (id: string) => void;
 }
 
 export default function TasksTable(props: Props) {
-  const { tasks, handleDeleteTask } = props;
+  const { tasks, handleDeleteTask, handleEditTask } = props;
 
   return (
     <TableContainer component={Paper}>
@@ -72,7 +72,7 @@ export default function TasksTable(props: Props) {
 
               <TableCell align="right">
                 <IconButton
-                  onClick={() => handleDeleteTask(task._id)}
+                  onClick={() => handleEditTask(task)}
                   aria-label="edit"
                 >
                   <EditIcon />

@@ -81,7 +81,7 @@ app.post('/add-task', async (req, res) => {
 app.put('/edit-task', async (req, res) => {
   const { _id, title, description, completed } = req.body;
 
-  const filter = { _id };
+  const filter = { _id: new ObjectId(`${_id}`) };
 
   const updateDocument = {
     $set: {
@@ -92,13 +92,19 @@ app.put('/edit-task', async (req, res) => {
   };
 
   try {
-    // Update the filtered task into the collection
+    // Update the task (replace with findOneAndUpdate adding { returnDocument: 'after' }))
     const result = await db
       .collection('tasks')
       .updateOne(filter, updateDocument);
+
+    // Fetch the updated task by its ID (using the insertedId
+    const updatedTask = await db.collection('tasks').findOne(result.insertedId);
+    console.log('Task updated successfully:', updatedTask);
+
+    return res.status(200).json(updatedTask);
   } catch (err) {
     console.error('Error updating task:', err);
-    res.status(500).json({ message: 'Error updating task', error: err });
+    return res.status(500).json({ message: 'Error updating task', error: err });
   }
 });
 

@@ -11,3 +11,10 @@ export interface TaskItemToAdd {
   description: string;
   completed: boolean;
 }
+
+export interface TaskItemToEdit {
+  _id: string;
+  title: string;
+  description: string;
+  completed: boolean;
+}
