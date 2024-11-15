@@ -11,7 +11,6 @@ import {
   Paper,
   Chip,
   IconButton,
-  ButtonBase,
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
@@ -42,19 +41,9 @@ export default function TasksTable(props: Props) {
         </TableHead>
         <TableBody>
           {tasks.map((task: TaskItem) => (
-            <ButtonBase
+            <TableRow
               key={task._id}
-              component={TableRow}
-              sx={{
-                '&:last-child td, &:last-child th': { border: 0 },
-                display: 'table-row',
-                ':hover': {
-                  backgroundColor: task.completed
-                    ? 'var(--mui-palette-warning-light)'
-                    : 'var(--mui-palette-success-light)',
-                  cursor: 'pointer',
-                },
-              }}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell>
                 {moment(task.timestamp).format('DD.MM.YYYY - HH:mm')}
@@ -95,7 +84,7 @@ export default function TasksTable(props: Props) {
                   <DeleteIcon />
                 </IconButton>
               </TableCell>
-            </ButtonBase>
+            </TableRow>
           ))}
         </TableBody>
       </Table>
