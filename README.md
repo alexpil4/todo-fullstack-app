@@ -1,4 +1,7 @@
-# TODO APP (REACTJS + EXPRESS.JS + MONGODB) (WIP)
+# TODOING (REACTJS + EXPRESS.JS + MONGODB)
+Basic todo app with a NodeJS server for CRUD op.
+
+## Installation
 
 Add the `.env` file into `server` and `client` folders, see the example.
 
