@@ -92,16 +92,13 @@ app.put('/edit-task', async (req, res) => {
   };
 
   try {
-    // Update the task (replace with findOneAndUpdate adding { returnDocument: 'after' }))
     const result = await db
       .collection('tasks')
-      .updateOne(filter, updateDocument);
+      .findOneAndUpdate(filter, updateDocument, { returnDocument: 'after' });
 
-    // Fetch the updated task by its ID (using the insertedId
-    const updatedTask = await db.collection('tasks').findOne(result.insertedId);
-    console.log('Task updated successfully:', updatedTask);
+    if (!result) res.status(404).json({ message: 'Task to update not found' });
 
-    return res.status(200).json(updatedTask);
+    return res.status(200).json(result);
   } catch (err) {
     console.error('Error updating task:', err);
     return res.status(500).json({ message: 'Error updating task', error: err });
