@@ -41,6 +41,7 @@ export default function TaskListPage() {
   // EDIT task
   const editTask = async (task: TaskItemToEdit) => {
     const { _id, title, description, completed } = task;
+
     try {
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/edit-task`,

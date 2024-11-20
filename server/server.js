@@ -3,6 +3,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const { logRequests, logResponses } = require('./middlewares/logger');
 
 // Express config
 const app = express();
@@ -33,6 +34,10 @@ const connectDB = async () => {
 
 // Run MongoDB connection
 connectDB();
+
+// Set the loggers (I/O)
+app.use(logRequests);
+app.use(logResponses);
 
 // GET tasks endpoint
 app.get('/tasks', async (req, res) => {
