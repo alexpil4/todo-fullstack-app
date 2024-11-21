@@ -176,6 +176,7 @@ export default function TaskListPage() {
       {taskList.length > 0 && (
         <TasksTable
           tasks={taskList}
+          handleDone={editTask}
           handleDeleteTask={deleteTask}
           handleEditTask={(task) => showTaskSection(task)}
         />
