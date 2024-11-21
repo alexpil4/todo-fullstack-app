@@ -38,9 +38,40 @@ export default function TaskListPage() {
     setLoading(false);
   };
 
+  const handleSubmit = async (task: TaskItemToAdd) => {
+    setLoading(true);
+    // POST task
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/add-task`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(task),
+        },
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // If task is successfully added, add it to the state
+        setTaskList((prevList) => [...prevList, data]);
+        setShowTask(showTaskInitialState);
+      } else {
+        // If error occurs, show the error message
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error('Error posting task:', error);
+    }
+    setLoading(false);
+  };
+
   // EDIT task
   const editTask = async (task: TaskItemToEdit) => {
-    const { _id, title, description, completed } = task;
+    const { _id } = task;
 
     try {
       const response = await fetch(
@@ -50,12 +81,7 @@ export default function TaskListPage() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            _id,
-            title,
-            description,
-            completed,
-          }),
+          body: JSON.stringify(task),
         },
       );
 
@@ -108,37 +134,6 @@ export default function TaskListPage() {
     fetchTasks();
   }, []);
 
-  const handleSubmit = async (task: TaskItemToAdd) => {
-    setLoading(true);
-    // POST task
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/add-task`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(task),
-        },
-      );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // If task is successfully added, add it to the state
-        setTaskList((prevList) => [...prevList, data]);
-        setShowTask(showTaskInitialState);
-      } else {
-        // If error occurs, show the error message
-        console.error(data.message);
-      }
-    } catch (error) {
-      console.error('Error posting task:', error);
-    }
-    setLoading(false);
-  };
-
   const handleCancel = () => setShowTask(showTaskInitialState);
 
   const showTaskSection = (task?: TaskItem) => {
@@ -158,20 +153,18 @@ export default function TaskListPage() {
       </Backdrop>
     );
 
-  if (!taskList)
-    return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        height="50vh"
-      >
-        No resources found
-      </Box>
-    );
-
   return (
     <>
+      {taskList.length === 0 && (
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="50vh"
+        >
+          Ops, still not task here!
+        </Box>
+      )}
       <TaskSection
         submit={handleSubmit}
         editTask={editTask}

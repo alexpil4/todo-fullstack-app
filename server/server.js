@@ -58,15 +58,16 @@ app.get('/tasks', async (req, res) => {
 
 // POST task endpoint
 app.post('/add-task', async (req, res) => {
-  const { title, description, completed } = req.body;
+  const { description, priority, completed, fromTime, toTime } = req.body;
 
   try {
     // Insert the new task into the collection
     const result = await db.collection('tasks').insertOne({
-      title,
       description,
+      priority,
       completed,
-      timestamp: new Date(),
+      fromTime,
+      toTime,
     });
 
     // Fetch the inserted task by its ID (using the insertedId)
@@ -84,15 +85,17 @@ app.post('/add-task', async (req, res) => {
 
 // PUT
 app.put('/edit-task', async (req, res) => {
-  const { _id, title, description, completed } = req.body;
+  const { _id, description, priority, completed, fromTime, toTime } = req.body;
 
   const filter = { _id: new ObjectId(`${_id}`) };
 
   const updateDocument = {
     $set: {
-      title,
       description,
+      priority,
       completed,
+      fromTime,
+      toTime,
     },
   };
 

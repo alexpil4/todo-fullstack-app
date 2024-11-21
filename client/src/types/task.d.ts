@@ -1,20 +1,25 @@
 export interface TaskItem {
   _id: string;
-  title: string;
   description: string;
+  priority: string;
   completed: boolean;
-  timestamp: Date;
+  fromTime: string;
+  toTime: string;
 }
 
 export interface TaskItemToAdd {
-  title: string;
   description: string;
+  priority: string;
   completed: boolean;
+  fromTime: string;
+  toTime: string;
 }
 
 export interface TaskItemToEdit {
   _id: string;
-  title: string;
   description: string;
+  priority: string;
   completed: boolean;
+  fromTime: string;
+  toTime: string;
 }

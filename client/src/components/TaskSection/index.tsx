@@ -12,7 +12,11 @@ import {
   FormControlLabel,
   Fab,
   Grid2,
+  MenuItem,
 } from '@mui/material';
+import { TimePicker } from '@mui/x-date-pickers';
+
+import moment, { Moment } from 'moment';
 
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
@@ -28,14 +32,16 @@ interface Props {
 }
 
 const formInitialState = {
-  title: '',
   description: '',
+  priority: '',
   completed: false,
+  fromTime: '',
+  toTime: '',
 };
 
 const formInitialErrorState = {
-  title: false,
   description: false,
+  priority: false,
 };
 
 export default function TaskSection(props: Props) {
@@ -67,6 +73,13 @@ export default function TaskSection(props: Props) {
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleTimeChange = (value: Moment | null, name: string) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value ? value.format('HH:mm') : null,
     }));
   };
 
@@ -121,23 +134,28 @@ export default function TaskSection(props: Props) {
 
         <Grid2
           container
+          spacing={2}
           component="form"
           onSubmit={handleSubmit}
-          sx={{ '& > :not(style)': { m: 1 } }}
           mt={4}
+          size={12}
         >
-          <Grid2 size={12}>
-            <TextField
-              required
-              fullWidth
-              id="outlined-basic"
-              label="Title"
-              name="title"
-              error={formError.title}
-              helperText={formError.title && 'Required field'}
-              variant="outlined"
-              value={formData.title}
-              onChange={handleChange}
+          <Grid2 size={6}>
+            <TimePicker
+              label="From"
+              name="fromTime"
+              onChange={(value) => handleTimeChange(value, 'fromTime')}
+              value={
+                formData.fromTime ? moment(formData.fromTime, 'HH:mm') : null
+              }
+            />
+          </Grid2>
+          <Grid2 size={6}>
+            <TimePicker
+              label="To"
+              name="toTime"
+              onChange={(value) => handleTimeChange(value, 'toTime')}
+              value={formData.toTime ? moment(formData.toTime, 'HH:mm') : null}
             />
           </Grid2>
           <Grid2 size={12}>
@@ -155,6 +173,26 @@ export default function TaskSection(props: Props) {
               value={formData.description}
               onChange={handleChange}
             />
+          </Grid2>
+
+          <Grid2 size={12}>
+            <TextField
+              select
+              required
+              fullWidth
+              id="outlined-basic"
+              label="Priority"
+              name="priority"
+              error={formError.priority}
+              helperText={formError.priority && 'Required field'}
+              variant="outlined"
+              value={formData.priority}
+              onChange={handleChange}
+            >
+              <MenuItem value="low">LOW</MenuItem>
+              <MenuItem value="medium">MEDIUM</MenuItem>
+              <MenuItem value="high">HIGH</MenuItem>
+            </TextField>
           </Grid2>
 
           <FormControlLabel

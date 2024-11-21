@@ -1,5 +1,4 @@
 import { TaskItem } from '../../types/task';
-import moment from 'moment';
 
 import {
   Table,
@@ -11,12 +10,15 @@ import {
   Paper,
   Chip,
   IconButton,
+  Typography,
+  Tooltip,
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
-import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import NotificationsPausedIcon from '@mui/icons-material/NotificationsPaused';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 
 interface Props {
   tasks: TaskItem[];
@@ -27,14 +29,38 @@ interface Props {
 export default function TasksTable(props: Props) {
   const { tasks, handleDeleteTask, handleEditTask } = props;
 
+  const handlePriority = (value: string) => {
+    let color: 'error' | 'warning' | 'primary' | 'disabled' = 'disabled';
+
+    switch (value) {
+      case 'high':
+        color = 'error';
+        break;
+      case 'medium':
+        color = 'warning';
+        break;
+      case 'low':
+        color = 'primary';
+        break;
+      default:
+        color = 'disabled';
+    }
+
+    return (
+      <Tooltip title={value}>
+        <DirectionsRunIcon color={color} />
+      </Tooltip>
+    );
+  };
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
-            <TableCell>DATE - TIME</TableCell>
-            <TableCell>TITLE</TableCell>
-            <TableCell>DESCRIPTION</TableCell>
+            <TableCell>TIME SLOT</TableCell>
+            <TableCell>TASK</TableCell>
+            <TableCell>PRIORITY</TableCell>
             <TableCell>STATUS</TableCell>
             <TableCell></TableCell>
           </TableRow>
@@ -46,24 +72,24 @@ export default function TasksTable(props: Props) {
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell>
-                {moment(task.timestamp).format('DD.MM.YYYY - HH:mm')}
-              </TableCell>
-              <TableCell component="th" scope="task">
-                {task.title}
+                <Typography color="primary">
+                  {task.fromTime} - {task.toTime}
+                </Typography>
               </TableCell>
               <TableCell>{task.description}</TableCell>
+              <TableCell>{handlePriority(task.priority)}</TableCell>
               <TableCell>
                 {task.completed ? (
                   <Chip
                     size="small"
-                    icon={<ThumbUpAltIcon />}
+                    icon={<SentimentSatisfiedAltIcon />}
                     label="COMPLETE"
                     color="success"
                   />
                 ) : (
                   <Chip
                     size="small"
-                    icon={<HourglassBottomIcon />}
+                    icon={<NotificationsPausedIcon />}
                     label="ON HOLD"
                     color="warning"
                   />
